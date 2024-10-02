@@ -1,0 +1,48 @@
+pkgname=mcpelauncher
+_pkgver=1.0.0-798
+pkgver="${_pkgver/-/.}"
+pkgrel=0
+pkgdesc="Minecraft Bedrock Launcher for Linux"
+
+arch=(x86_64)
+url="https://github.com/minecraft-linux/appimage-builder"
+license=(GPL3.0)
+
+makedepends=('desktop-file-utils')
+optdepends=('zenity: custom skin picker')
+provides=('minecraft-bedrock')
+
+conflicts=(
+    mcpelauncher-client
+    mcpelauncher-ui
+)
+
+options=(!strip)
+
+source=("mcpelauncher-x86_64-v${pkgver}.AppImage::$url/releases/download/v${_pkgver}/Minecraft_Bedrock_Launcher-x86_64-v${pkgver}.AppImage")
+sha512sums=('SKIP')
+
+_fileName="mcpelauncher-${CARCH}-v${pkgver}.AppImage"
+_desktopFile="usr/share/applications/mcpelauncher-ui-qt.desktop"
+_scalableIcon="usr/share/icons/hicolor/scalable/apps/mcpelauncher-ui-qt.svg"
+
+prepare() {
+    rm -rf "${srcdir}/squashfs-root"
+    chmod +x "${srcdir}/${_fileName}"
+    "${srcdir}/${_fileName}" --appimage-extract
+    
+    desktop-file-edit --set-key="Exec" --set-value="/usr/bin/mcpelauncher-ui-qt %U" "${srcdir}/squashfs-root/${_desktopFile}"
+}
+
+package() {
+    install -Dm644 "${srcdir}/squashfs-root/${_scalableIcon}" "${pkgdir}/${_scalableIcon}"
+    install -Dm644 "${srcdir}/squashfs-root/${_desktopFile}" "${pkgdir}/${_desktopFile}"
+    
+    install -dm755 "${pkgdir}/opt/${pkgname}"
+    install -dm755 "${pkgdir}/usr/bin"
+    
+    cp -r "${srcdir}/squashfs-root/." "${pkgdir}/opt/${pkgname}"
+    
+    ln -s "/opt/${pkgname}/usr/bin/${pkgname}-ui-qt" "${pkgdir}/usr/bin/${pkgname}-ui-qt"
+    ln -s "/opt/${pkgname}/usr/bin/mcpelauncher-client" "${pkgdir}/usr/bin/mcpelauncher-client"
+}
