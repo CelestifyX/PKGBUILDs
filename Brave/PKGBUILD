@@ -1,5 +1,5 @@
 pkgname=brave
-pkgver=1.70.119
+pkgver=1.70.123
 pkgrel=0
 pkgdesc='Web browser that blocks ads and trackers by default (binary release)'
 arch=(x86_64)
