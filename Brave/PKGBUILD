@@ -1,0 +1,56 @@
+pkgname=brave
+pkgver=1.70.119
+pkgrel=0
+pkgdesc='Web browser that blocks ads and trackers by default (binary release)'
+arch=(x86_64)
+url=https://brave.com
+license=(MPL2 BSD custom:chromium)
+
+depends=(
+	alsa-lib
+    gtk3
+    libxss
+    nss
+    ttf-font
+)
+
+optdepends=(
+	'cups: Printer support'
+    'libgnome-keyring: Enable GNOME keyring support'
+    'libnotify: Native notification support'
+)
+
+provides=('brave-browser')
+conflicts=('brave-bin')
+options=(!strip)
+source=($pkgname.sh brave-browser.desktop ${pkgname}-${pkgver}-x86_64.zip::https://github.com/brave/brave-browser/releases/download/v${pkgver}/brave-browser-${pkgver}-linux-amd64.zip)
+
+noextract=(${pkgname}-${pkgver}-x86_64.zip)
+
+sha256sums=(
+	'SKIP'
+    'SKIP'
+	'SKIP'
+)
+
+prepare() {
+	mkdir -p brave
+	bsdtar -xf "$pkgname-$pkgver-$CARCH.zip" -C brave
+	chmod +x brave/brave
+}
+
+package() {
+	install -dm0755 "$pkgdir/opt"
+	cp -a brave "$pkgdir/opt/$pkgname"
+
+	chmod 4755 "$pkgdir/opt/$pkgname/chrome-sandbox"
+
+	install -Dm0755 "$pkgname.sh" "$pkgdir/usr/bin/brave"
+	install -Dm0644 -t "$pkgdir/usr/share/applications/" "brave-browser.desktop"
+	install -Dm0644 -t "$pkgdir/usr/share/licenses/$pkgname/" brave/LICENSE
+	pushd "$pkgdir/usr/"
+
+	for size in 16x16 24x24 32x32 48x48 64x64 128x128 256x256; do
+		install -Dm0644 "$pkgdir/opt/$pkgname/product_logo_${size/x*/}.png" "share/icons/hicolor/$size/apps/brave-desktop.png"
+	done
+}
