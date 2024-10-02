@@ -1,0 +1,57 @@
+pkgname=elysoria
+pkgver=1.0.1
+pkgrel=0
+pkgdesc="BitTorrent client"
+arch=('any')
+url="https://github.com/CelestifyX/Elysoria"
+license=('GPL3')
+
+depends=(
+    dconf
+    gcc-libs
+    glib2
+    glibc
+    gtk4
+    hicolor-icon-theme
+    libadwaita
+    openssl
+    transmission-cli
+    zlib
+)
+
+makedepends=(
+    appstream
+    git
+    meson
+    rust
+)
+
+checkdepends=(
+    'appstream-glib'
+    'reuse'
+)
+
+source=("$pkgname::git+$url")
+options=('!lto')
+b2sums=('SKIP')
+
+prepare() {
+    cd $pkgname
+
+    export RUSTUP_TOOLCHAIN=stable
+    export CARGO_TARGET_DIR=target
+    
+    cargo fetch --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+    local meson_options=(--buildtype release)
+    export RUSTUP_TOOLCHAIN=stable
+
+    arch-meson $pkgname build "${meson_options[@]}"
+    meson compile -C build
+}
+
+package() {
+    meson install -C build --destdir "$pkgdir"
+}
