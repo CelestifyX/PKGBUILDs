@@ -1,0 +1,32 @@
+pkgname=lynxfetch
+pkgver=1.2.1
+pkgrel=1
+pkgdesc="Super fast, versatile, and customizable command-line fetcher."
+arch=('any')
+url="https://github.com/CelestifyX/LynxFetch"
+license=('GPL3')
+makedepends=('cargo')
+
+source=("$pkgname::git+$url")
+sha512sums=('SKIP')
+
+prepare() {
+    cd $pkgname
+    cargo fetch --locked --target "$CARCH-unknown-linux-gnu"
+}
+
+build() {
+    cd $pkgname
+
+    export RUSTUP_TOOLCHAIN=stable
+    export CARGO_TARGET_DIR=target
+
+    cargo build --features "player" --frozen --release
+}
+
+package() {
+    cd $pkgname
+    mkdir -p "$pkgdir/usr/bin"
+
+    install -Dm0755 "target/release/$pkgname" "$pkgdir/usr/bin/"
+}
