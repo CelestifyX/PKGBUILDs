@@ -1,6 +1,6 @@
 pkgname=lynxfetch
 pkgver=1.2.2
-pkgrel=1
+pkgrel=0
 pkgdesc="Super fast, versatile, and customizable command-line fetcher."
 arch=('any')
 url="https://github.com/CelestifyX/LynxFetch"
